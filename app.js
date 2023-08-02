@@ -4,7 +4,7 @@ const express = require('express');
 const cron = require('node-cron');
 const fs = require('fs');
 const app = express();
-const port = 3000; // Change the port as needed
+const port = process.env.PORT || 3000;
 
 // Sample data
 const rooms = ['Top-floor', 'Upstairs bathroom', 'Living room', 'Kitchen', 'Downstairs Bathroom', 'Entrance'];
