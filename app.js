@@ -1,6 +1,7 @@
 const express = require("express");
 const cron = require("node-cron");
 const fs = require("fs");
+const { get } = require("http");
 const app = express();
 const port = 3000; // Change the port as needed
 
@@ -109,5 +110,6 @@ app.listen(port, () => {
   cron.schedule("0 0 * * 1", () => {
     console.log("Generating the cleaning list...");
     generateCleaningList();
+    getCurrentWeekNumber();
   });
 });
