@@ -1,8 +1,25 @@
-@import url('../node_modules/inter/inter.css');
+@import url('../node_modules/@fontsource/inter');
 
 *{
   font-family: "Inter";
 }
+
+/* Light mode */
+@media (prefers-color-scheme: light) {
+  body {
+      background-color: white;
+      color: black;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  body {
+      background-color: black;
+      color: white;
+  }
+}
+
 
 .container {
   position: absolute;
