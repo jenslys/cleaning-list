@@ -1,24 +1,22 @@
-// app.js
-
 const express = require('express');
 const cron = require('node-cron');
 const fs = require('fs');
 const app = express();
 const port = 3000; // Change the port as needed
 
-// Sample data
-const rooms = ['Top-floor', 'Upstairs bathroom', 'Living room', 'Kitchen', 'Downstairs Bathroom', 'Entrance'];
-const people = ['Jens', 'Martin', 'Lars', 'Håkon', 'Aslak', 'Aksel', 'Ola'];
+// Rooms and people
+const rooms = ['Toppetasjen', 'Toppetasjen Bad', 'Stua', 'Kjøkkenet', 'Badet i hovedetasjen', 'Inngangsparti'];
+const people = ['Jens', 'Martin', 'Lars', 'Håkon', 'Aslak', 'Aksel'];
 
 // Map of people to their respective restrictions
 const restrictions = {
-  Jens: ['Downstairs Bathroom'],
-  Martin: ['Downstairs Bathroom'],
-  Lars: ['Downstairs Bathroom'],
-  Håkon: ['Downstairs Bathroom'],
-  Aslak: ['Top-floor', 'Upstairs bathroom'],
-  Aksel: ['Top-floor', 'Upstairs bathroom'],
-  Ola: ['Top-floor', 'Upstairs bathroom'],
+  Jens: ['Badet i hovedetasjen'],
+  Martin: ['Badet i hovedetasjen'],
+  Lars: ['Badet i hovedetasjen'],
+  Håkon: ['Badet i hovedetasjen'],
+  Aslak: ['Toppetasjen', 'Toppetasjen Bad'],
+  Aksel: ['Toppetasjen', 'Toppetasjen Bad']
+  //Ola: ['Toppetasjen', 'Toppetasjen Bad'],
 };
 
 // Function to generate the cleaning list
@@ -34,7 +32,7 @@ function generateCleaningList() {
       return !personRestrictions.includes(room);
     });
 
-    cleaningList[person] = availableRooms.length ? availableRooms[0] : 'No room assigned';
+    cleaningList[person] = availableRooms.length ? availableRooms[0] : 'Ingenting';
     if (availableRooms.length) {
       shuffledRooms.splice(shuffledRooms.indexOf(availableRooms[0]), 1);
     }
