@@ -3,12 +3,8 @@
 const express = require('express');
 const cron = require('node-cron');
 const fs = require('fs');
-const os = require('os');
-const path = require('path');
 const app = express();
-const port = process.env.PORT || 3000;
-
-// ... (your existing code for initializing the application and setting up routes)
+const port = 3000; // Change the port as needed
 
 // Sample data
 const rooms = ['Top-floor', 'Upstairs bathroom', 'Living room', 'Kitchen', 'Downstairs Bathroom', 'Entrance'];
@@ -44,13 +40,12 @@ function generateCleaningList() {
     }
   }
 
-  // Save the cleaning list to a temporary file
-  const tempFilePath = path.join(os.tmpdir(), 'cleaning-list.json');
-  fs.writeFile(tempFilePath, JSON.stringify(cleaningList, null, 2), (err) => {
+  // Save the cleaning list to a file (cleaning-list.json)
+  fs.writeFile('cleaning-list.json', JSON.stringify(cleaningList, null, 2), (err) => {
     if (err) {
       console.error('Error saving cleaning list:', err);
     } else {
-      console.log('Cleaning list has been saved to temporary file:', tempFilePath);
+      console.log('Cleaning list has been saved to cleaning-list.json');
     }
   });
 
@@ -59,7 +54,7 @@ function generateCleaningList() {
 
 // Route to display the cleaning list as an HTML list
 app.get('/', (req, res) => {
-  fs.readFile(path.join(os.tmpdir(), 'cleaning-list.json'), 'utf8', (err, data) => {
+  fs.readFile('cleaning-list.json', 'utf8', (err, data) => {
     if (err) {
       console.error('Error reading cleaning list:', err);
       // If there was an error reading the file, generate a new cleaning list
