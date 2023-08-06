@@ -1,25 +1,22 @@
-@import url('../node_modules/@fontsource/inter');
-
-*{
-  font-family: Inter , Helvetica;
+* {
+  font-family: Inter, Helvetica;
 }
 
 /* Light mode */
 @media (prefers-color-scheme: light) {
   body {
-      background-color: white;
-      color: black;
+    background-color: white;
+    color: black;
   }
 }
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   body {
-      background-color: black;
-      color: white;
+    background-color: black;
+    color: white;
   }
 }
-
 
 .container {
   position: absolute;
@@ -28,13 +25,13 @@
   transform: translate(-50%, -50%);
 }
 
-.cleaning-list{
-  list-style : ">";
+.cleaning-list {
+  list-style: ">";
   padding: 0;
   margin: 0;
 }
 
-.cleaning-list li{
+.cleaning-list li {
   padding: 10px;
   font-size: 18px;
 }
