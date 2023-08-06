@@ -32,17 +32,16 @@ const rooms = [
   "Toppetasjen Bad",
   "Stua",
   "Kjøkkenet",
-  "Badet i hovedetasjen",
+  "Hovedetasjen Bad",
   "Inngangsparti",
 ];
 const people = ["Jens", "Martin", "Lars", "Håkon", "Aslak", "Aksel"];
 
 // Map of people to their respective restrictions
 const restrictions = {
-  Jens: ["Badet i hovedetasjen"],
-  Martin: ["Badet i hovedetasjen"],
-  Lars: ["Badet i hovedetasjen"],
-  Håkon: ["Badet i hovedetasjen"],
+  Martin: ["Hovedetasjen Bad"],
+  Lars: ["Hovedetasjen Bad"],
+  Håkon: ["Hovedetasjen Bad"],
   Aslak: ["Toppetasjen", "Toppetasjen Bad"],
   Aksel: ["Toppetasjen", "Toppetasjen Bad"],
 };
