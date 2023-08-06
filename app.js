@@ -31,7 +31,6 @@ const restrictions = {
   Håkon: ["Badet i hovedetasjen"],
   Aslak: ["Toppetasjen", "Toppetasjen Bad"],
   Aksel: ["Toppetasjen", "Toppetasjen Bad"],
-  //Ola: ['Toppetasjen', 'Toppetasjen Bad'],
 };
 
 // Function to generate the cleaning list
@@ -103,13 +102,16 @@ app.use(express.static("public"));
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port:${port}`);
   generateCleaningList(); // Generate the cleaning list when the server starts
 
   // Schedule the list generation to run every Monday at 12:00 AM
-  cron.schedule("0 0 * * 1", () => {
-    console.log("Generating the cleaning list...");
-    generateCleaningList();
-    getCurrentWeekNumber();
-  });
+  cron.schedule(
+    "0 0 * * 1",
+    () => {
+      console.log("Generating the cleaning list...");
+      generateCleaningList();
+    },
+    (timezone = "Europe/Oslo")
+  );
 });
