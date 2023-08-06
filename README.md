@@ -10,4 +10,5 @@ Stack:
 - NodeJS + Express (for the backend)
 - [EJS](https://ejs.co/) for rendering the HTML
 - Render.com (for hosting)
-- cron-job.org [(Pinging the server so it doesn't sleep)](https://render.com/docs/free#free-web-services)
+
+![Website Screenshot](https://github.com/jenslys/cleaning-list/assets/69081683/b12a09d9-37c7-4cdb-a474-2c30749ca602)

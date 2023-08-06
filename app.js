@@ -1,15 +1,29 @@
 const express = require("express");
 const cron = require("node-cron");
 const fs = require("fs");
-const { get } = require("http");
+const fetch = require("node-fetch");
 const app = express();
-const port = 3000; // Change the port as needed
+const port = 3000;
 
 // Function to get the current week number
 function getCurrentWeekNumber() {
-  const now = new Date();
-  const onejan = new Date(now.getFullYear(), 0, 1);
-  return Math.ceil(((now - onejan) / 86400000 + onejan.getDay() + 1) / 7);
+  // Get the current date and time in Norway/Oslo timezone
+  const now = new Date().toLocaleString("en-US", { timeZone: "Europe/Oslo" });
+  const onejan = new Date(new Date().getFullYear(), 0, 1).toLocaleString(
+    "en-US",
+    { timeZone: "Europe/Oslo" }
+  );
+
+  // Convert the date strings to Date objects
+  const nowDate = new Date(now);
+  const onejanDate = new Date(onejan);
+
+  // Calculate the week number
+  const weekNumber = Math.ceil(
+    ((nowDate - onejanDate) / 86400000 + onejanDate.getDay() + 1) / 7
+  );
+
+  return weekNumber;
 }
 
 // Rooms and people
@@ -70,6 +84,17 @@ function generateCleaningList() {
   return cleaningList;
 }
 
+// Function to ping itself to keep the website alive on Render (https://render.com/docs/free#free-web-services)
+async function pingCleaningList() {
+  try {
+    const response = await fetch("https://cleaning-list.onrender.com/");
+    const data = await response.text();
+    console.log("Ping successful. Response:", data);
+  } catch (error) {
+    console.error("Error pinging cleaning list:", error);
+  }
+}
+
 // Route to display the cleaning list as an HTML list
 app.get("/", (req, res) => {
   fs.readFile("cleaning-list.json", "utf8", (err, data) => {
@@ -112,6 +137,16 @@ app.listen(port, () => {
       console.log("Generating the cleaning list...");
       generateCleaningList();
     },
-    (timezone = "Europe/Oslo")
+    { timezone: "Europe/Oslo" }
+  );
+
+  // Schedule the ping to run every 10 minutes
+  cron.schedule(
+    "*/10 * * * *",
+    () => {
+      console.log("Pinging Website");
+      pingCleaningList();
+    },
+    { timezone: "Europe/Oslo" }
   );
 });
