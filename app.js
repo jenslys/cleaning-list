@@ -49,14 +49,16 @@ const restrictions = {
 // Function to generate the cleaning list
 function generateCleaningList() {
   // Shuffle the rooms to randomize the assignment
-  const shuffledRooms = rooms.sort(() => 0.5 - Math.random());
+  const shuffledRooms = rooms.slice().sort(() => 0.5 - Math.random());
 
   // Assign rooms to people based on restrictions
   const cleaningList = {};
   for (const person of people) {
+    const personRestrictions = restrictions[person] || [];
     const availableRooms = shuffledRooms.filter((room) => {
-      const personRestrictions = restrictions[person] || [];
-      return !personRestrictions.includes(room);
+      const isRestricted = personRestrictions.includes(room);
+      console.log(`${person} - ${room} - Restricted: ${isRestricted}`);
+      return !isRestricted;
     });
 
     cleaningList[person] = availableRooms.length
