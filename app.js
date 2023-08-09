@@ -3,7 +3,7 @@ const cron = require("node-cron");
 const fs = require("fs");
 const fetch = require("node-fetch");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const seedrandom = require("seedrandom");
 
 // Function to get the current week number
