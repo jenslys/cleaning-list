@@ -50,26 +50,38 @@ const restrictions = {
 // Function to generate the cleaning list based on a given seed
 function generateCleaningList(seed) {
   const rng = seedrandom(seed); // Use the seedrandom function
-  const shuffledRooms = rooms.slice().sort(() => rng() - 0.5);
 
-  const cleaningList = {};
-  for (const person of people) {
-    const personRestrictions = restrictions[person] || [];
-    const availableRooms = shuffledRooms.filter((room) => {
-      const isRestricted = personRestrictions.includes(room);
-      //console.log(`${person} - ${room} - Restricted: ${isRestricted}`);
-      return !isRestricted;
-    });
+  let retry;
+  while (true) {
+    retry = false;
 
-    cleaningList[person] = availableRooms.length
-      ? availableRooms[0]
-      : "Ingenting";
-    if (availableRooms.length) {
-      shuffledRooms.splice(shuffledRooms.indexOf(availableRooms[0]), 1);
+    const cleaningList = {};
+    const shuffledRooms = rooms.slice().sort(() => rng() - 0.5);
+    for (const person of people) {
+      const personRestrictions = restrictions[person] || [];
+      const availableRooms = shuffledRooms.filter((room) => {
+        const isRestricted = personRestrictions.includes(room);
+        return !isRestricted;
+      });
+
+      if (availableRooms.length === 0) {
+        // If there are no available rooms for a person, try again
+        retry = true;
+        break;
+      }
+
+      cleaningList[person] = availableRooms.length
+        ? availableRooms[0]
+        : "Ingenting";
+      if (availableRooms.length) {
+        shuffledRooms.splice(shuffledRooms.indexOf(availableRooms[0]), 1);
+      }
+    }
+
+    if (!retry) {
+      return cleaningList;
     }
   }
-
-  return cleaningList;
 }
 
 // Route to display the cleaning list as an HTML list
