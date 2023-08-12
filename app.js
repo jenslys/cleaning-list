@@ -64,8 +64,9 @@ function generateCleaningList(seed) {
         return !isRestricted;
       });
 
-      if (availableRooms.length === 0) {
+      if (availableRooms.length === 0 && people.length <= rooms.length) {
         // If there are no available rooms for a person, try again
+        // unless there are more people than rooms
         retry = true;
         break;
       }
