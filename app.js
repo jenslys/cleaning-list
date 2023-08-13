@@ -36,7 +36,15 @@ const rooms = [
   "Hovedetasjen Bad",
   "Inngangsparti",
 ];
-const people = ["Jens", "Martin", "Lars", "Håkon", "Aslak", "Aksel"];
+const people = [
+  "Jens",
+  "Martin",
+  "Lars",
+  "Håkon",
+  "Aslak",
+  "Aksel",
+  "Odd Fredrik",
+];
 
 // Map of people to their respective restrictions
 const restrictions = {
@@ -45,6 +53,7 @@ const restrictions = {
   Håkon: ["Hovedetasjen Bad"],
   Aslak: ["Toppetasjen", "Toppetasjen Bad"],
   Aksel: ["Toppetasjen", "Toppetasjen Bad"],
+  "Odd Fredrik": ["Toppetasjen", "Toppetasjen Bad"],
 };
 
 // Function to generate the cleaning list based on a given seed
