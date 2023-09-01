@@ -9,14 +9,14 @@
   <body>
     <div class="container">
       <h1>Uke <%= weekNumber %> Vaskeliste</h1>
-      <ul class="cleaning-list">
+      <ol>
         <% Object.entries(cleaningList).forEach(([person, room]) => { %>
         <li>
           <strong><%= person %></strong> skal vaske:
           <strong><%= room %></strong>.
         </li>
         <% }); %>
-      </ul>
+      </ol>
     </div>
   </body>
 </html>
