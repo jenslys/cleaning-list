@@ -29,5 +29,8 @@ To set up the Dorm Cleaning Scheduler locally or on your preferred hosting platf
 3. Customize the residents' information and room restrictions.
 4. Run the server using `npm start`.
 
-![pika-1692709699321-1x](https://github.com/jenslys/cleaning-list/assets/69081683/a4401e92-5fa5-4b06-8bab-5d1931628c4b)
+
+![image](https://github.com/jenslys/cleaning-list/assets/69081683/05632ba1-4486-45ef-a018-adc9244d124c)
+
+
 
