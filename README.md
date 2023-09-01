@@ -1,14 +1,33 @@
-# Cleaning list
+# Dorm Cleaning Scheduler
 
-Generates a weekly cleaning list for the college dorm i live in.
-It randomly assigns people to a rom that they need to clean each monday and displays it in a list.
+This app utilizes the power of the [Edmonds-Karp Algorithm](https://en.wikipedia.org/wiki/Edmonds%E2%80%93Karp_algorithm) to create a weekly cleaning list that assigns specific cleaning duties to residents in your dorm. This scheduler ensures an equitable distribution of cleaning tasks every Monday.
 
-It has customizable restrictions for rooms certain people should not clean, for example the people living downstairs should not clean the upstairs bathroom etc.
+## Features
 
-Stack:
+- **Efficient Algorithm**: The Edmonds-Karp Algorithm optimizes the assignment of cleaning tasks, making sure that each resident gets a fair share of different chores over time.
 
-- NodeJS + Express (for the backend)
-- [EJS](https://ejs.co/) for rendering the HTML
-- Render.com (for hosting)
+- **Customizable Restrictions**: Tailor the cleaning assignments to your dorm's layout and preferences. You can set up restrictions to avoid assigning certain rooms to specific residents. For instance, if someone lives downstairs, you can make sure they won't be assigned to clean an upstairs room.
 
-![Website Screenshot](https://github.com/jenslys/cleaning-list/assets/69081683/b12a09d9-37c7-4cdb-a474-2c30749ca602)
+## How It Works
+
+1. Residents' information and room restrictions are entered into the system.
+2. The Edmonds-Karp Algorithm intelligently distributes cleaning tasks while considering the set restrictions.
+3. The generated cleaning list is made available every Monday for residents to view.
+
+## Tech Stack
+
+- **Backend**: Built with NodeJS and Express, providing a robust and responsive server infrastructure.
+- **Frontend**: Utilizes [EJS](https://ejs.co/) to dynamically render the cleaning lists, ensuring a seamless user experience.
+- **Hosting**: Deployed on Render.com, guaranteeing high availability and optimal performance.
+
+## Getting Started
+
+To set up the Dorm Cleaning Scheduler locally or on your preferred hosting platform:
+
+1. Clone this repository.
+2. Install the required dependencies using `npm install`.
+3. Customize the residents' information and room restrictions.
+4. Run the server using `npm start`.
+
+![pika-1692709699321-1x](https://github.com/jenslys/cleaning-list/assets/69081683/a4401e92-5fa5-4b06-8bab-5d1931628c4b)
+

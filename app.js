@@ -6,6 +6,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 const seedrandom = require("seedrandom");
 
+const { createGraph, edmondsKarp } = require("./edmondsKarp");
+
 // Function to get the current week number
 function getCurrentWeekNumber() {
   // Get the current date and time in Norway/Oslo timezone
@@ -60,38 +62,34 @@ const restrictions = {
 function generateCleaningList(seed) {
   const rng = seedrandom(seed); // Use the seedrandom function
 
-  let retry;
-  while (true) {
-    retry = false;
+  // If people are not shuffled, one person will always get nothing
+  // and if rooms are not shuffled, every person will get the same room every week
+  const peopleShuffled = people.slice().sort(() => rng() - 0.5);
+  const roomsShuffled = rooms.slice().sort(() => rng() - 0.5);
 
-    const cleaningList = {};
-    const shuffledRooms = rooms.slice().sort(() => rng() - 0.5);
-    for (const person of people) {
-      const personRestrictions = restrictions[person] || [];
-      const availableRooms = shuffledRooms.filter((room) => {
-        const isRestricted = personRestrictions.includes(room);
-        return !isRestricted;
-      });
+  const graph = createGraph(peopleShuffled, roomsShuffled, restrictions);
+  const sink = roomsShuffled.length + peopleShuffled.length + 1;
+  const flowTable = edmondsKarp(graph, 0, sink);
 
-      if (availableRooms.length === 0 && people.length <= rooms.length) {
-        // If there are no available rooms for a person, try again
-        // unless there are more people than rooms
-        retry = true;
-        break;
+  const cleaningList = {};
+  // Loop over people instead of peopleShuffled to get the original order shown on the website
+  for (let person of people) {
+    cleaningList[person] = [];
+    flowTable[peopleShuffled.indexOf(person) + 1].forEach((flow, index) => {
+      if (flow > 0) {
+        cleaningList[person].push(
+          roomsShuffled[index - peopleShuffled.length - 1]
+        );
       }
+    });
 
-      cleaningList[person] = availableRooms.length
-        ? availableRooms[0]
-        : "Ingenting";
-      if (availableRooms.length) {
-        shuffledRooms.splice(shuffledRooms.indexOf(availableRooms[0]), 1);
-      }
-    }
-
-    if (!retry) {
-      return cleaningList;
+    // If the person has no rooms, add "Ingenting" to the list
+    if (cleaningList[person].length === 0) {
+      cleaningList[person].push("Ingenting");
     }
   }
+
+  return cleaningList;
 }
 
 // Route to display the cleaning list as an HTML list
