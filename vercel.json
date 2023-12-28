@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "cleaning-list",
+  "includeFiles": ["views/**", "public/**"],
   "builds": [
     {
       "src": "app.js",
