@@ -1,12 +1,6 @@
 const express = require("express");
-const cron = require("node-cron");
-const fs = require("fs");
-const fetch = require("node-fetch");
 const app = express();
 const port = process.env.PORT || 3000;
-const seedrandom = require("seedrandom");
-
-const { createGraph, edmondsKarp } = require("./edmondsKarp");
 
 // Function to get the current week number
 function getCurrentWeekNumber() {
@@ -37,57 +31,91 @@ const rooms = [
   "Kjøkkenet",
   "Hovedetasjen Bad",
   "Inngangsparti",
+  "Gang + Trapp",
+  "Ingenting",
 ];
 const people = [
   "Jens",
   "Martin",
   "Lars",
-  "Håkon",
+  "Haakon",
   "Aslak",
   "Aksel",
-  "Odd Fredrik",
+  "Odd_Fredrik",
 ];
 
 // Map of people to their respective restrictions
 const restrictions = {
   Martin: ["Hovedetasjen Bad"],
   Lars: ["Hovedetasjen Bad"],
-  Håkon: ["Hovedetasjen Bad"],
-  Aslak: ["Toppetasjen", "Toppetasjen Bad"],
-  Aksel: ["Toppetasjen", "Toppetasjen Bad"],
-  "Odd Fredrik": ["Toppetasjen", "Toppetasjen Bad"],
+  Haakon: ["Hovedetasjen Bad"],
+  Aslak: ["Toppetasjen Bad"],
+  Aksel: ["Toppetasjen Bad"],
+  Odd_Fredrik: ["Toppetasjen Bad"],
+  Jens: [],
 };
 
-// Function to generate the cleaning list based on a given seed
-function generateCleaningList(seed) {
-  const rng = seedrandom(seed); // Use the seedrandom function
-
-  // If people are not shuffled, one person will always get nothing
-  // and if rooms are not shuffled, every person will get the same room every week
-  const peopleShuffled = people.slice().sort(() => rng() - 0.5);
-  const roomsShuffled = rooms.slice().sort(() => rng() - 0.5);
-
-  const graph = createGraph(peopleShuffled, roomsShuffled, restrictions);
-  const sink = roomsShuffled.length + peopleShuffled.length + 1;
-  const flowTable = edmondsKarp(graph, 0, sink);
-
-  const cleaningList = {};
-  // Loop over people instead of peopleShuffled to get the original order shown on the website
-  for (let person of people) {
-    cleaningList[person] = [];
-    flowTable[peopleShuffled.indexOf(person) + 1].forEach((flow, index) => {
-      if (flow > 0) {
-        cleaningList[person].push(
-          roomsShuffled[index - peopleShuffled.length - 1]
-        );
-      }
-    });
-
-    // If the person has no rooms, add "Ingenting" to the list
-    if (cleaningList[person].length === 0) {
-      cleaningList[person].push("Ingenting");
-    }
+function simulateWeeks(numWeeks) {
+  const currentWeek = getCurrentWeekNumber();
+  for (let i = 0; i < numWeeks; i++) {
+    const weekNumber = currentWeek + i;
+    const cleaningList = generateCleaningList(weekNumber);
+    console.log(`Week ${weekNumber}:`, cleaningList);
   }
+}
+
+simulateWeeks(10); // Simulate the next 10 weeks
+
+// Function to generate the cleaning list based on the current week number
+function generateCleaningList(weekNumber) {
+  const cleaningList = {};
+  const assignedRooms = new Set();
+
+  // Calculate the rotation index based on the current week number
+  const rotationIndex = weekNumber % people.length;
+
+  // Create two lists: one for people with restrictions and one for people without
+  const peopleWithRestrictions = people.filter(
+    (person) => restrictions[person]
+  );
+  const peopleWithoutRestrictions = people.filter(
+    (person) => !restrictions[person]
+  );
+
+  // Function to assign rooms to a list of people
+  const assignRooms = (peopleList, startIndex) => {
+    for (let i = 0; i < peopleList.length; i++) {
+      const person = peopleList[i];
+      let roomIndex = (startIndex + i) % rooms.length;
+      let counter = 0;
+
+      // Keep rotating until we find a room without a restriction and not already assigned
+      while (
+        (assignedRooms.has(rooms[roomIndex]) ||
+          (restrictions[person] &&
+            restrictions[person].includes(rooms[roomIndex]))) &&
+        counter < rooms.length
+      ) {
+        roomIndex = (roomIndex + 1) % rooms.length;
+        counter++;
+      }
+
+      // If we couldn't find a room, assign null
+      if (counter === rooms.length) {
+        cleaningList[person] = null;
+      } else {
+        cleaningList[person] = rooms[roomIndex];
+        assignedRooms.add(rooms[roomIndex]);
+      }
+    }
+  };
+
+  // Assign rooms to people without restrictions first, then to people with restrictions
+  assignRooms(peopleWithoutRestrictions, rotationIndex);
+  assignRooms(
+    peopleWithRestrictions,
+    rotationIndex + peopleWithoutRestrictions.length
+  );
 
   return cleaningList;
 }
@@ -95,8 +123,7 @@ function generateCleaningList(seed) {
 // Route to display the cleaning list as an HTML list
 app.get("/", (req, res) => {
   const weekNumber = getCurrentWeekNumber();
-  const seed = `Week${weekNumber}`; // Use the week number as the seed
-  const cleaningList = generateCleaningList(seed);
+  const cleaningList = generateCleaningList(weekNumber);
 
   // Render the page with the cleaning list
   res.render("index", { cleaningList, weekNumber });

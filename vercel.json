@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "name": "cleaning-list",
+  "builds": [
+    {
+      "src": "app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.js"
+    }
+  ],
+  "engines": {
+    "node": ">=14"
+  }
+}
