@@ -56,21 +56,45 @@ const restrictions = {
   Jens: [],
 };
 
-function simulateWeeks(numWeeks) {
-  const currentWeek = getCurrentWeekNumber();
-  for (let i = 0; i < numWeeks; i++) {
-    const weekNumber = currentWeek + i;
-    const cleaningList = generateCleaningList(weekNumber);
-    console.log(`Week ${weekNumber}:`, cleaningList);
+// Function to assign rooms to a list of people
+const assignRooms = (
+  peopleList,
+  startIndex,
+  weekNumber,
+  lastAssigned,
+  assignedRooms,
+  cleaningList
+) => {
+  let localIndex = startIndex;
+  for (let person of peopleList) {
+    let assignedRoom = null;
+    let attempts = 0;
+
+    while (!assignedRoom && attempts < rooms.length) {
+      let tryRoomIndex = (localIndex + attempts) % rooms.length;
+      let room = rooms[tryRoomIndex];
+
+      if (
+        !assignedRooms.has(room) &&
+        (!restrictions[person] || !restrictions[person].includes(room)) &&
+        room !== lastAssigned[person]
+      ) {
+        assignedRoom = room;
+        assignedRooms.add(room);
+        lastAssigned[person] = room; // Update the last assigned room for the person
+        localIndex = (tryRoomIndex + 1) % rooms.length; // Update localIndex for the next person
+      }
+      attempts++;
+    }
+
+    cleaningList[person] = assignedRoom || "Ingenting"; // Assign 'Ingenting' if no room is found
   }
-}
+};
 
-simulateWeeks(10); // Simulate the next 10 weeks
-
-// Function to generate the cleaning list based on the current week number
-function generateCleaningList(weekNumber) {
+// Adjust the generateCleaningList function to pass the cleaningList object to assignRooms
+function generateCleaningList(weekNumber, lastAssigned) {
   const cleaningList = {};
-  const assignedRooms = new Set();
+  const assignedRooms = new Set(); // This set keeps track of rooms already assigned
 
   // Calculate the rotation index based on the current week number
   const rotationIndex = weekNumber % people.length;
@@ -83,48 +107,49 @@ function generateCleaningList(weekNumber) {
     (person) => !restrictions[person]
   );
 
-  // Function to assign rooms to a list of people
-  const assignRooms = (peopleList, startIndex) => {
-    for (let i = 0; i < peopleList.length; i++) {
-      const person = peopleList[i];
-      let roomIndex = (startIndex + i) % rooms.length;
-      let counter = 0;
-
-      // Keep rotating until we find a room without a restriction and not already assigned
-      while (
-        (assignedRooms.has(rooms[roomIndex]) ||
-          (restrictions[person] &&
-            restrictions[person].includes(rooms[roomIndex]))) &&
-        counter < rooms.length
-      ) {
-        roomIndex = (roomIndex + 1) % rooms.length;
-        counter++;
-      }
-
-      // If we couldn't find a room, assign null
-      if (counter === rooms.length) {
-        cleaningList[person] = null;
-      } else {
-        cleaningList[person] = rooms[roomIndex];
-        assignedRooms.add(rooms[roomIndex]);
-      }
-    }
-  };
-
   // Assign rooms to people without restrictions first, then to people with restrictions
-  assignRooms(peopleWithoutRestrictions, rotationIndex);
+  assignRooms(
+    peopleWithoutRestrictions,
+    rotationIndex,
+    weekNumber,
+    lastAssigned,
+    assignedRooms,
+    cleaningList
+  );
   assignRooms(
     peopleWithRestrictions,
-    rotationIndex + peopleWithoutRestrictions.length
+    rotationIndex + peopleWithoutRestrictions.length,
+    weekNumber,
+    lastAssigned,
+    assignedRooms,
+    cleaningList
   );
 
   return cleaningList;
 }
 
+// Initialize a map to keep track of the last room assigned to each person
+const lastAssigned = people.reduce((acc, person) => {
+  acc[person] = null;
+  return acc;
+}, {});
+
+// Simulate the weeks, passing the lastAssigned map to generateCleaningList
+function simulateWeeks(numWeeks) {
+  const currentWeek = getCurrentWeekNumber();
+  for (let i = 0; i < numWeeks; i++) {
+    const weekNumber = currentWeek + i;
+    const cleaningList = generateCleaningList(weekNumber, lastAssigned);
+    console.log(`Week ${weekNumber}:`, cleaningList);
+  }
+}
+
+simulateWeeks(10); // Simulate the next 10 weeks
+
 // Route to display the cleaning list as an HTML list
 app.get("/", (req, res) => {
   const weekNumber = getCurrentWeekNumber();
-  const cleaningList = generateCleaningList(weekNumber);
+  const cleaningList = generateCleaningList(weekNumber, lastAssigned);
 
   // Render the page with the cleaning list
   res.render("index", { cleaningList, weekNumber });
