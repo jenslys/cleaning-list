@@ -152,7 +152,12 @@ app.get("/", (req, res) => {
   const cleaningList = generateCleaningList(weekNumber, lastAssigned);
 
   // Render the page with the cleaning list
-  res.render("index", { cleaningList, weekNumber });
+  res.render("index", {
+    cleaningList,
+    weekNumber,
+    generateCleaningList,
+    lastAssigned,
+  });
 });
 
 // Set the view engine to EJS

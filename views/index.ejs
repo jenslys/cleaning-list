@@ -79,6 +79,44 @@
         </li>
         <% }); %>
       </ol>
+      <button
+        id="showDialog"
+        style="
+          display: block;
+          margin: 0 auto;
+          padding: 10px 20px;
+          border: none;
+          background-color: #f2f2f2;
+          color: #000;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        "
+      >
+        Se kommende uker
+      </button>
+      <dialog id="upcomingWeeks" style="text-align: center">
+        <h2>Kommende uker</h2>
+        <% for (let i = 1; i <= 10; i++) { %>
+        <h3>Uke <%= weekNumber + i %></h3>
+        <ol>
+          <% Object.entries(generateCleaningList(weekNumber + i,
+          lastAssigned)).forEach(([person, room]) => { %>
+          <li>
+            <strong><%= person %></strong> skal vaske:
+            <strong><%= room %></strong>.
+          </li>
+          <% }); %>
+        </ol>
+        <% } %>
+      </dialog>
     </div>
+    <script>
+      const showDialogButton = document.getElementById("showDialog");
+      const upcomingWeeksDialog = document.getElementById("upcomingWeeks");
+      showDialogButton.addEventListener("click", () => {
+        upcomingWeeksDialog.showModal();
+      });
+    </script>
   </body>
 </html>
