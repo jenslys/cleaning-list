@@ -159,6 +159,16 @@ function generateCleaningList(weekNumber, lastAssigned) {
     }
   }
 
+  // Add a custom task to "Hovedetasjen Bad" every 4 weeks
+  const customTask = "Tøm dusjavløp";
+  if (weekNumber % 2 === 0) {
+    for (const person in cleaningList) {
+      if (cleaningList[person].includes("Hovedetasjen Bad")) {
+        cleaningList[person] += ` ++ ${customTask}`;
+      }
+    }
+  }
+
   return cleaningList;
 }
 

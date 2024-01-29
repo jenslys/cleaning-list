@@ -72,16 +72,24 @@
     <div class="container">
       <h1>Uke <%= weekNumber %> Vaskeliste</h1>
       <ol>
-        <% Object.entries(cleaningList).forEach(([person, room]) => { %>
+        <% Object.entries(cleaningList).forEach(([person, tasks]) => { %>
         <li>
-          <strong><%= person %></strong> skal vaske: <% if (room.includes('++'))
-          { %>
-          <strong><%= room.split('++')[0] %></strong>
-          <br />
-          <span><%= room.split('++')[1] %></span>
-          <% } else { %>
-          <strong><%= room %></strong>
-          <% } %>
+          <strong><%= person %></strong> skal vaske: <% const taskList =
+          tasks.split('++'); for (let i = 0; i < taskList.length; i++) { if (i
+          === 0) { %><strong><%= taskList[i].trim() %></strong><% } else {
+          %><span
+            style="
+              display: block;
+              color: #d32f2f;
+              margin-top: 5px;
+              margin-bottom: 5px;
+              font-weight: bold;
+              background-color: #ffebee;
+              padding: 3px 10px;
+              border-radius: 4px;
+            "
+            ><%= taskList[i].trim() %></span
+          ><% } } %>
         </li>
         <% }); %>
       </ol>
@@ -127,24 +135,24 @@
         <h3>Uke <%= weekNumber + i %></h3>
         <ol>
           <% Object.entries(generateCleaningList(weekNumber + i,
-          lastAssigned)).forEach(([person, room]) => { %>
+          lastAssigned)).forEach(([person, tasks]) => { %>
           <li>
-            <strong><%= person %></strong> skal vaske: <% if
-            (room.includes('++')) { %>
-            <strong><%= room.split('++')[0] %></strong>
-            <br />
-            <span
+            <strong><%= person %></strong> skal vaske: <% const taskList =
+            tasks.split('++'); for (let i = 0; i < taskList.length; i++) { if (i
+            === 0) { %><strong><%= taskList[i].trim() %></strong><% } else {
+            %><span
               style="
-                color: red;
+                display: block;
+                color: #d32f2f;
                 margin-top: 5px;
                 margin-bottom: 5px;
                 font-weight: bold;
+                background-color: #ffebee;
+                padding: 3px 10px;
+                border-radius: 4px;
               "
-              ><%= room.split('++')[1] %></span
-            >
-            <% } else { %>
-            <strong><%= room %></strong>
-            <% } %>
+              ><%= taskList[i].trim() %></span
+            ><% } } %>
           </li>
           <% }); %>
         </ol>
