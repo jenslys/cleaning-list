@@ -39,20 +39,20 @@ const people = [
   "Jens",
   "Martin",
   "Lars",
-  "Haakon",
+  "Håkon",
   "Aslak",
   "Aksel",
-  "Odd_Fredrik",
+  "Odd Fredrik",
 ];
 
 // Map of people to their respective restrictions
 const restrictions = {
   Martin: ["Hovedetasjen Bad"],
   Lars: ["Hovedetasjen Bad"],
-  Haakon: ["Hovedetasjen Bad"],
+  Håkon: ["Hovedetasjen Bad"],
   Aslak: ["Toppetasjen Bad"],
   Aksel: ["Toppetasjen Bad"],
-  Odd_Fredrik: ["Toppetasjen Bad"],
+  "Odd Fredrik": ["Toppetasjen Bad"],
   Jens: [],
 };
 
