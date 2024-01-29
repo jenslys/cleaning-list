@@ -87,7 +87,23 @@ const assignRooms = (
       attempts++;
     }
 
-    cleaningList[person] = assignedRoom || "Ingenting"; // Assign 'Ingenting' if no room is found
+    // If no room is found after all attempts, check if any room is actually available
+    if (!assignedRoom) {
+      for (let room of rooms) {
+        if (
+          !assignedRooms.has(room) &&
+          (!restrictions[person] || !restrictions[person].includes(room))
+        ) {
+          assignedRoom = room;
+          assignedRooms.add(room);
+          lastAssigned[person] = room;
+          break;
+        }
+      }
+    }
+
+    // Assign 'Ingenting' only if all rooms are taken or restricted
+    cleaningList[person] = assignedRoom || "Ingenting";
   }
 };
 
