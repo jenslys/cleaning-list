@@ -74,8 +74,14 @@
       <ol>
         <% Object.entries(cleaningList).forEach(([person, room]) => { %>
         <li>
-          <strong><%= person %></strong> skal vaske:
-          <strong><%= room %></strong>.
+          <strong><%= person %></strong> skal vaske: <% if (room.includes('++'))
+          { %>
+          <strong><%= room.split('++')[0] %></strong>
+          <br />
+          <span><%= room.split('++')[1] %></span>
+          <% } else { %>
+          <strong><%= room %></strong>
+          <% } %>
         </li>
         <% }); %>
       </ol>
@@ -123,8 +129,22 @@
           <% Object.entries(generateCleaningList(weekNumber + i,
           lastAssigned)).forEach(([person, room]) => { %>
           <li>
-            <strong><%= person %></strong> skal vaske:
-            <strong><%= room %></strong>.
+            <strong><%= person %></strong> skal vaske: <% if
+            (room.includes('++')) { %>
+            <strong><%= room.split('++')[0] %></strong>
+            <br />
+            <span
+              style="
+                color: red;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                font-weight: bold;
+              "
+              ><%= room.split('++')[1] %></span
+            >
+            <% } else { %>
+            <strong><%= room %></strong>
+            <% } %>
           </li>
           <% }); %>
         </ol>

@@ -107,10 +107,16 @@ const assignRooms = (
   }
 };
 
-// Adjust the generateCleaningList function to pass the cleaningList object to assignRooms
+// Adjust the generateCleaningList function to include a description for certain rooms every two weeks
 function generateCleaningList(weekNumber, lastAssigned) {
   const cleaningList = {};
   const assignedRooms = new Set(); // This set keeps track of rooms already assigned
+  const specialTask = "NB! Vask og erstatt håndkler.";
+  const roomsWithSpecialTask = [
+    "Hovedetasjen Bad",
+    "Toppetasjen Bad",
+    "Kjøkkenet",
+  ];
 
   // Calculate the rotation index based on the current week number
   const rotationIndex = weekNumber % people.length;
@@ -140,6 +146,18 @@ function generateCleaningList(weekNumber, lastAssigned) {
     assignedRooms,
     cleaningList
   );
+
+  // Add the special task description to the specified rooms every two weeks
+  if (weekNumber % 2 === 0) {
+    // Check if it's an even week number
+    for (const room of roomsWithSpecialTask) {
+      for (const person in cleaningList) {
+        if (cleaningList[person] === room) {
+          cleaningList[person] += ` ++ ${specialTask}`;
+        }
+      }
+    }
+  }
 
   return cleaningList;
 }
