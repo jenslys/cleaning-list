@@ -3,20 +3,21 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require("node:path");
 
-// Function to get the current week number
+// Function to calculate the current week number based on the current date and timezone
 function getCurrentWeekNumber() {
-  // Get the current date and time in Norway/Oslo timezone
+  // Get current date in Europe/Oslo timezone
   const now = new Date().toLocaleString("en-US", { timeZone: "Europe/Oslo" });
+  // Get January 1st of the current year in Europe/Oslo timezone
   const onejan = new Date(new Date().getFullYear(), 0, 1).toLocaleString(
     "en-US",
     { timeZone: "Europe/Oslo" }
   );
 
-  // Convert the date strings to Date objects
+  // Convert strings to Date objects
   const nowDate = new Date(now);
   const onejanDate = new Date(onejan);
 
-  // Calculate the week number
+  // Calculate week number
   const weekNumber = Math.ceil(
     ((nowDate - onejanDate) / 86400000 + onejanDate.getDay() + 1) / 7
   );
@@ -24,17 +25,19 @@ function getCurrentWeekNumber() {
   return weekNumber;
 }
 
-// Rooms and people
+// Predefined list of rooms for cleaning assignments
 const rooms = [
   "Toppetasjen",
-  "Toppetasjen Bad",
   "Stua",
   "Kjøkkenet",
   "Hovedetasjen Bad",
   "Inngangsparti",
   "Gang + Trapp",
+  "Toppetasjen Bad",
   "Ingenting",
 ];
+
+// List of people responsible for cleaning
 const people = [
   "Jens",
   "Martin",
@@ -45,7 +48,7 @@ const people = [
   "Odd Fredrik",
 ];
 
-// Map of people to their respective restrictions
+// Restrictions for certain people to not be assigned specific rooms
 const restrictions = {
   Martin: ["Hovedetasjen Bad"],
   Lars: ["Hovedetasjen Bad"],
@@ -56,7 +59,7 @@ const restrictions = {
   Jens: [],
 };
 
-// Function to assign rooms to a list of people
+// Function to assign rooms to people based on restrictions, previous assignments, and a rotation system
 const assignRooms = (
   peopleList,
   startIndex,
@@ -70,10 +73,12 @@ const assignRooms = (
     let assignedRoom = null;
     let attempts = 0;
 
-    while (!assignedRoom && attempts < rooms.length) {
-      let tryRoomIndex = (localIndex + attempts) % rooms.length;
+    // Attempt to assign a room, excluding "Ingenting" from initial attempts
+    while (!assignedRoom && attempts < rooms.length - 1) {
+      let tryRoomIndex = (localIndex + attempts) % (rooms.length - 1);
       let room = rooms[tryRoomIndex];
 
+      // Check if room is available, not restricted, and not the last assigned room
       if (
         !assignedRooms.has(room) &&
         (!restrictions[person] || !restrictions[person].includes(room)) &&
@@ -81,13 +86,13 @@ const assignRooms = (
       ) {
         assignedRoom = room;
         assignedRooms.add(room);
-        lastAssigned[person] = room; // Update the last assigned room for the person
-        localIndex = (tryRoomIndex + 1) % rooms.length; // Update localIndex for the next person
+        lastAssigned[person] = room;
+        localIndex = (tryRoomIndex + 1) % (rooms.length - 1);
       }
       attempts++;
     }
 
-    // If no room is found after all attempts, check if any room is actually available
+    // If no room is assigned, assign "Ingenting" or any available room without restrictions
     if (!assignedRoom) {
       for (let room of rooms) {
         if (
@@ -102,15 +107,15 @@ const assignRooms = (
       }
     }
 
-    // Assign 'Ingenting' only if all rooms are taken or restricted
+    // Update cleaning list with the assigned room or "Ingenting"
     cleaningList[person] = assignedRoom || "Ingenting";
   }
 };
 
-// Adjust the generateCleaningList function to include a description for certain rooms every two weeks
+// Function to generate a cleaning list for a given week number
 function generateCleaningList(weekNumber, lastAssigned) {
   const cleaningList = {};
-  const assignedRooms = new Set(); // This set keeps track of rooms already assigned
+  const assignedRooms = new Set();
   const specialTask = "NB! Vask og erstatt håndkler.";
   const roomsWithSpecialTask = [
     "Hovedetasjen Bad",
@@ -118,10 +123,10 @@ function generateCleaningList(weekNumber, lastAssigned) {
     "Kjøkkenet",
   ];
 
-  // Calculate the rotation index based on the current week number
+  // Calculate rotation index based on week number
   const rotationIndex = weekNumber % people.length;
 
-  // Create two lists: one for people with restrictions and one for people without
+  // Separate people with and without restrictions
   const peopleWithRestrictions = people.filter(
     (person) => restrictions[person]
   );
@@ -129,7 +134,7 @@ function generateCleaningList(weekNumber, lastAssigned) {
     (person) => !restrictions[person]
   );
 
-  // Assign rooms to people without restrictions first, then to people with restrictions
+  // Assign rooms to people without restrictions
   assignRooms(
     peopleWithoutRestrictions,
     rotationIndex,
@@ -138,6 +143,7 @@ function generateCleaningList(weekNumber, lastAssigned) {
     assignedRooms,
     cleaningList
   );
+  // Assign rooms to people with restrictions
   assignRooms(
     peopleWithRestrictions,
     rotationIndex + peopleWithoutRestrictions.length,
@@ -147,9 +153,8 @@ function generateCleaningList(weekNumber, lastAssigned) {
     cleaningList
   );
 
-  // Add the special task description to the specified rooms every two weeks
+  // Add special tasks to certain rooms every second week
   if (weekNumber % 2 === 0) {
-    // Check if it's an even week number
     for (const room of roomsWithSpecialTask) {
       for (const person in cleaningList) {
         if (cleaningList[person] === room) {
@@ -159,7 +164,7 @@ function generateCleaningList(weekNumber, lastAssigned) {
     }
   }
 
-  // Add a custom task to "Hovedetasjen Bad" every 4 weeks
+  // Add a custom task to "Hovedetasjen Bad" every second week
   const customTask = "Tøm dusjavløp";
   if (weekNumber % 2 === 0) {
     for (const person in cleaningList) {
@@ -172,13 +177,13 @@ function generateCleaningList(weekNumber, lastAssigned) {
   return cleaningList;
 }
 
-// Initialize a map to keep track of the last room assigned to each person
+// Initialize lastAssigned with null for each person
 const lastAssigned = people.reduce((acc, person) => {
   acc[person] = null;
   return acc;
 }, {});
 
-// Simulate the weeks, passing the lastAssigned map to generateCleaningList
+// Function to simulate cleaning list generation for a number of weeks
 function simulateWeeks(numWeeks) {
   const currentWeek = getCurrentWeekNumber();
   for (let i = 0; i < numWeeks; i++) {
@@ -188,14 +193,13 @@ function simulateWeeks(numWeeks) {
   }
 }
 
-simulateWeeks(10); // Simulate the next 10 weeks
+simulateWeeks(10);
 
-// Route to display the cleaning list as an HTML list
+// Setup express server routes, views, and static files
 app.get("/", (req, res) => {
   const weekNumber = getCurrentWeekNumber();
   const cleaningList = generateCleaningList(weekNumber, lastAssigned);
 
-  // Render the page with the cleaning list
   res.render("index", {
     cleaningList,
     weekNumber,
@@ -204,12 +208,11 @@ app.get("/", (req, res) => {
   });
 });
 
-// Set the view engine to EJS
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-// Start the server
+// Start the server on the specified port
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
